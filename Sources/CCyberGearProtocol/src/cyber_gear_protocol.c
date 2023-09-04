@@ -63,14 +63,14 @@ void cyber_gear_set_can_id_target_can_id(cyber_gear_can_t *frame, int value) {
     cyber_gear_set_can_id_int_value(frame, kCAN_ID_TARGET_CAN_ID_BIT_OFFSET, kCAN_ID_TARGET_CAN_ID_LENGTH, value);
 }
 
-void cyber_gear_build_parameter_write_frame_with_int_value(cyber_gear_can_t *frame, cyber_gear_parameter_index_t index, int value) {
+void cyber_gear_build_parameter_write_frame_with_int_value(cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, int value) {
     cyber_gear_set_can_id_communation_type(frame, COMMUNICATION_WRITE_SINGLE_PARAM);
     
     eightbyte_set_bitfield((int)index, 0, 16, (uint64_t *)frame->bytes);
     eightbyte_set_bitfield(value, 32, 32, (uint64_t *)frame->bytes);
 }
 
-void cyber_gear_build_parameter_write_frame_with_float_value(cyber_gear_can_t *frame, cyber_gear_parameter_index_t index, float value) {
+void cyber_gear_build_parameter_write_frame_with_float_value(cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, float value) {
     float_memory_t v;
     v.v = value;
     

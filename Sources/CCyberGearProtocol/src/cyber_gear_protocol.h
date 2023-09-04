@@ -56,10 +56,261 @@ typedef enum {
 } cyber_gear_can_communication_type_t;
 
 typedef enum {
-    /* 只读参数 */
-    /* [TODO] */
-    
-    /* 可读写参数 */
+    /// Name 电机名称
+    /// 参数类型 String
+    CONFIG_WR_NAME = 0x0000,
+    /// BarCode
+    /// 参数类型 String
+    CONFIG_R_BAR_CODE = 0x0001,
+    /// BootCodeVersion
+    /// 参数类型 String
+    CONFIG_R_BOOT_CODE_VERSION = 0x1000,
+    /// BootBuildDate
+    /// 参数类型 String
+    CONFIG_R_BOOT_BUILD_DATE = 0x1001,
+    /// BootBuildTime
+    /// 参数类型 String
+    CONFIG_R_BOOT_BUILD_TIME = 0x1002,
+    /// AppCodeVersion
+    /// 参数类型 String
+    CONFIG_R_APP_CODE_VERSION = 0x1003,
+    /// AppGitVersion
+    /// 参数类型 String
+    CONFIG_R_APP_GIT_VERSION = 0x1004,
+    /// AppBuildDate
+    /// 参数类型 String
+    CONFIG_R_APP_BUILD_DATE = 0x1005,
+    /// AppBuildTime
+    /// 参数类型
+    CONFIG_R_APP_BUILD_TIME = 0x1006,
+    /// AppCodeName
+    /// 参数类型
+    CONFIG_R_APP_CODE_NAME = 0x1007,
+    /// echoPara1
+    /// 参数类型
+    CONFIG_R_ECHO_PARA1 = 0x2000,
+    /// echoPara2
+    /// 参数类型
+    CONFIG_R_ECHO_PARA2 = 0x2001,
+    /// echoPara3
+    /// 参数类型
+    CONFIG_R_ECHO_PARA3 = 0x2002,
+    /// echoPara4
+    /// 参数类型
+    CONFIG_R_ECHO_PARA4 = 0x2003,
+    /// echoFreHz
+    /// 参数类型
+    CONFIG_WR_ECHO_FRE_HZ = 0x2004,
+    /// MechOffset 电机磁编码器角度偏置
+    /// 参数类型 float [-7, 7]
+    CONFIG_R_MECH_OFFSET = 0x2005,
+    /// MechPos_init 初始多圈时的参考角度
+    /// 参数类型 float [-50, 50]
+    CONFIG_WR_MECH_POS_INIT = 0x2006,
+    /// limit_torque 转矩限制
+    /// 参数类型 float [0, 12]
+    CONFIG_WR_LIMIT_TORQUE = 0x2007,
+    /// I_FW_MAX 弱磁电 流值，默认0
+    /// 参数类型 float [0, 33]
+    CONFIG_WR_I_FW_MAX = 0x2008,
+    /// motor_index 电机 index，标记电机关节位置
+    /// 参数类型 uint8_t [0, 20]
+    CONFIG_WR_MOTOR_INDEX = 0x2009,
+    /// CAN_ID 本节点 id
+    /// 参数类型 uint8_t [0, 127]
+    CONFIG_WR_CAN_ID = 0x200a,
+    /// CAN_MASTER can 主机 id
+    /// 参数类型 uint8_t [0, 127]
+    CONFIG_WR_CAN_MASTER = 0x200b,
+    /// CAN_TIMEOUT can 超时 阈值，默 认0
+    /// 参数类型 uint32_t [0, 10000]
+    CONFIG_WR_CAN_TIMEOUT = 0x200c,
+    /// motorOverTemp 电机保护温度值，temp (度) *10
+    /// 参数类型 uint16_t [0, 1500]
+    CONFIG_WR_MOTOR_OVER_TEMP = 0x200d,
+    /// overTempTime 过温时间
+    /// 参数类型 uint32_t [0, 100000]
+    CONFIG_WR_OVER_TEMP_TIME = 0x200e,
+    /// GearRatio 传动比
+    /// 参数类型 float [1, 64]
+    CONFIG_WR_GEAR_RATIO = 0x200f,
+    /// Tq_caliType 转矩标定方法设定
+    /// 参数类型 uint8_t 0, 1
+    CONFIG_WR_TQ_CALI_TYPE = 0x2010,
+    /// cur_filt_gain 电流滤波参数
+    /// 参数类型 float [0, 1]
+    CONFIG_WR_CUR_FILT_GAIN = 0x2011,
+    /// cur_kp 电流 kp
+    /// 参数类型 float [0, 200]
+    CONFIG_WR_CUR_KP = 0x2012,
+    /// cur_ki 电流 ki
+    /// 参数类型 float [0, 200]
+    CONFIG_WR_CUR_KI = 0x2013,
+    /// spd_kp 速度 kp
+    /// 参数类型 float [0, 200]
+    CONFIG_WR_SPD_KP = 0x2014,
+    /// spd_ki 速度 ki
+    /// 参数类型 float [0, 200]
+    CONFIG_WR_SPD_KI = 0x2015,
+    /// loc_kp 位置 kp
+    /// 参数类型 float [0, 200]
+    CONFIG_WR_LOC_KP = 0x2016,
+    /// spd_filt_gain 速度滤波参数
+    /// 参数类型 float [0, 1]
+    CONFIG_WR_SPD_FILT_GAIN = 0x2017,
+    /// limit_spd 位置环速度限制
+    /// 参数类型 float [0, 200]
+    CONFIG_WR_LIMIT_SPD = 0x2018,
+    /// limit_cur 位置速度控制电流限制
+    /// 参数类型 float [0, 27]
+    CONFIG_WR_LIMIT_CUR = 0x2019,
+    /// timeUse0
+    /// 参数类型 uint16_t
+    CONFIG_R_TIME_USE0 = 0x3000,
+    /// timeUse1
+    /// 参数类型 uint16_t
+    CONFIG_R_TIME_USE1 = 0x3001,
+    /// timeUse1
+    /// 参数类型 uint16_t
+    CONFIG_R_TIME_USE2 = 0x3002,
+    /// timeUse1
+    /// 参数类型 uint16_t
+    CONFIG_R_TIME_USE3 = 0x3003,
+    /// encoderRaw 磁编码器采样值
+    /// 参数类型 uint16_t
+    CONFIG_R_ENCODER_RAW = 0x3004,
+    /// mcuTemp mcu 内部 温度，*10
+    /// 参数类型 uint16_t
+    CONFIG_R_MCU_TEMP = 0x3005,
+    /// motorTemp 电机 ntc 温度， *10
+    /// 参数类型 uint16_t
+    CONFIG_R_MOTOR_TEMP = 0x3006,
+    /// vBus(mv) 母线电 压
+    /// 参数类型 uint16_t
+    CONFIG_R_VBUS_MV = 0x3007,
+    /// adc1Offset adc 采样 通道1 零电流 偏置
+    /// 参数类型 int32_t
+    CONFIG_R_ADC1_OFFSET = 0x3008,
+    /// adc2Offset adc 采样 通道2 零电流 偏置
+    /// 参数类型 int32_t
+    CONFIG_R_ADC2_OFFSET = 0x3009,
+    /// adc1Raw adc 采样 值1
+    /// 参数类型 uint32_t
+    CONFIG_R_ADC1_RAW = 0x300a,
+    /// adc2Raw adc 采样 值2
+    /// 参数类型 uint32_t
+    CONFIG_R_ADC2_RAW = 0x300b,
+    /// VBUS 母线电 压V
+    /// 参数类型 float
+    CONFIG_R_VBUS_V = 0x300c,
+    /// cmdId id环指令，A
+    /// 参数类型 float
+    CONFIG_R_CMD_ID = 0x300d,
+    /// cmdIq iq 环指令，A
+    /// 参数类型 float
+    CONFIG_R_CMD_IQ = 0x300e,
+    /// cmdlocref 位置环指令， rad
+    /// 参数类型 float
+    CONFIG_R_CMD_LOC_REF = 0x300f,
+    /// cmdspdref 速度环指令， rad/s
+    /// 参数类型 float
+    CONFIG_R_CMD_SPD_REF = 0x3010,
+    /// cmdTorque 转矩指令，nm
+    /// 参数类型 float
+    CONFIG_R_CMD_TORQUE = 0x3011,
+    /// cmdPos mit 协议 角度指令
+    /// 参数类型 float
+    CONFIG_R_CMD_POS = 0x3012,
+    /// cmdVel mit 协议速度指令
+    /// 参数类型 float
+    CONFIG_R_CMD_VEL = 0x3013,
+    /// rotation 圈数
+    /// 参数类型 int16_t
+    CONFIG_R_ROTATION = 0x3014,
+    /// modPos 电机未计圈机械角度， rad
+    /// 参数类型 float
+    CONFIG_R_MOD_POS = 0x3015,
+    /// mechPos 负载端计圈机械角度， rad
+    /// 参数类型 float
+    CONFIG_R_MECH_POS = 0x3016,
+    /// mechVel 负载端转速,rad/ s
+    /// 参数类型 float
+    CONFIG_R_MECH_VEL = 0x3017,
+    /// elecPos 电气角度
+    /// 参数类型 float
+    CONFIG_R_ELEC_POS = 0x3018,
+    /// ia U线电流，A
+    /// 参数类型 float
+    CONFIG_R_IA = 0x3019,
+    /// ib V线电流，A
+    /// 参数类型 float
+    CONFIG_R_IB = 0x301a,
+    /// ic W线电流，A
+    /// 参数类型 float
+    CONFIG_R_IC = 0x301b,
+    /// tick
+    /// 参数类型 uint32_t
+    CONFIG_R_TICK = 0x301c,
+    /// phaseOrder 标定方向标记
+    /// 参数类型 uint8_t
+    CONFIG_R_PHASE_ORDER = 0x301d,
+    /// iqf iq 滤波值，A
+    /// 参数类型 float
+    CONFIG_R_IQF = 0x301e,
+    /// boardTemp 板上温度，*10
+    /// 参数类型 int16_t
+    CONFIG_R_BOARD_TEMP = 0x301f,
+    /// iq iq 原值， A
+    /// 参数类型 float
+    CONFIG_R_IQ = 0x3020,
+    /// id id 原值， A
+    /// 参数类型 float
+    CONFIG_R_ID = 0x3021,
+    /// faultSta 故障状态值
+    /// 参数类型 uint32_t
+    CONFIG_R_FAULT_STATUS = 0x3022,
+    /// warnSta 警告状态值
+    /// 参数类型 uint32_t
+    CONFIG_R_WARN_STATUS = 0x3023,
+    /// drv_fault 驱动芯片故障值
+    /// 参数类型 uint16_t
+    CONFIG_R_DRV_FAULT = 0x3024,
+    /// drv_temp 驱动芯片温度值，度
+    /// 参数类型 int16_t
+    CONFIG_R_DRV_TEMP = 0x3025,
+    /// Uq q 轴电压
+    /// 参数类型 float
+    CONFIG_R_UQ = 0x3026,
+    /// Ud d 轴电压
+    /// 参数类型 float
+    CONFIG_R_UD = 0x3027,
+    /// dtc_u U 相输出 占空比
+    /// 参数类型 float
+    CONFIG_R_DTC_U = 0x3028,
+    /// dtc_v V 相输出 占空比
+    /// 参数类型 float
+    CONFIG_R_DTC_V = 0x3029,
+    /// dtc_w W 相输出 占空比
+    /// 参数类型 float
+    CONFIG_R_DTC_W = 0x302a,
+    /// v_bus 闭环中 vbus
+    /// 参数类型
+    CONFIG_R_CLOSED_LOOP_V_BUS = 0x302b,
+    /// v_ref 闭环 vq,vd 合 成电压
+    /// 参数类型 float
+    CONFIG_R_CLOSED_LOOP_V_REF = 0x302c,
+    /// torque_fdb 转矩反 馈值，nm
+    /// 参数类型 float
+    CONFIG_R_TORQUE_FDB = 0x302d,
+    /// rated_i 电机额 定电流
+    /// 参数类型 float
+    CONFIG_R_RATED_I = 0x302e,
+    /// limit_i 电机限 制最大 电流
+    /// 参数类型 float
+    CONFIG_R_LIMIT_I = 0x302f,
+} cyber_gear_config_index_t;
+
+typedef enum {
     /// 运控模式
     /// 0: 运控模式 1: 位置模式 2: 速度模式 3: 电流模式
     /// 参数类型 uint8_t
@@ -111,7 +362,7 @@ typedef enum {
     /// 参数字节数 4
     /// 参数说明 0~27A
     PARAMETER_LIMIT_CUR = 0x7018,
-} cyber_gear_parameter_index_t;
+} cyber_gear_read_write_parameter_index_t;
 
 
 /*
@@ -161,7 +412,7 @@ CYBERGEARAPI void cyber_gear_set_can_id_target_can_id(cyber_gear_can_t *frame, i
  * @param: index 参数index
  * @param: value 参数值
  * */
-CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_int_value(cyber_gear_can_t *frame, cyber_gear_parameter_index_t index, int value);
+CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_int_value(cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, int value);
 
 
 /* 构造一个参数写入的CAN包, 参数值为浮点
@@ -169,4 +420,4 @@ CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_int_value(cyber_ge
  * @param: index 参数index
  * @param: value 参数值
  * */
-CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_float_value(cyber_gear_can_t *frame, cyber_gear_parameter_index_t index, float value);
+CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_float_value(cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, float value);
