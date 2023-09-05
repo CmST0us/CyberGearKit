@@ -10,7 +10,8 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
     ],
     targets: [
-        .target(name: "CCyberGearProtocol"),
+        .target(name: "CCyberGearProtocol",
+                exclude: ["test"]),
         .target(name: "CyberGearKit",
                 dependencies: [.target(name: "CCyberGearProtocol")]),
         .executableTarget(
