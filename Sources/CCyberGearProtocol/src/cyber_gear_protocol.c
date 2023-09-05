@@ -7,9 +7,9 @@
 #include <assert.h>
 #include <limits.h>
 
+#include <libcybergear/cyber_gear_protocol.h>
 #include "utils.h"
 #include "float16.h"
-#include "cyber_gear_protocol.h"
 
 // CAN ID 通讯类型比特位偏移
 #define kCAN_ID_COMM_TYPE_BIT_OFFSET (24)

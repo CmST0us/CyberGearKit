@@ -1,0 +1,4 @@
+module CCyberGearProtocol {
+    header "cyber_gear_protocol.h"
+    export *
+}
