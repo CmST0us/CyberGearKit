@@ -5,32 +5,7 @@
 #pragma once
 
 #include <sys/types.h>
-
-#if defined _WIN32 || defined __CYGWIN__
-  #ifdef BUILDING_DLL
-    #ifdef __GNUC__
-      #define CYBERGEARAPI __attribute__ ((dllexport))
-    #else
-      #define CYBERGEARAPI __declspec(dllexport) // Note: actually gcc seems to also supports this syntax.
-    #endif
-  #else
-    #ifdef __GNUC__
-      #define CYBERGEARAPI __attribute__ ((dllimport))
-    #else
-      #define CYBERGEARAPI __declspec(dllimport) // Note: actually gcc seems to also supports this syntax.
-    #endif
-  #endif
-  #define DLL_LOCAL
-#else
-  #if __GNUC__ >= 4
-    #define CYBERGEARAPI __attribute__ ((visibility ("default")))
-    #define CYBERGEARHIDE  __attribute__ ((visibility ("hidden")))
-  #else
-    #define CYBERGEARAPI
-    #define CYBERGEARHIDE
-  #endif
-#endif
-
+#include "visibility.h"
 
 typedef enum {
     /// 获取设备 ID (通信类型 0) ;获取设备的 ID 和 64 位 MCU 唯一 标识符
@@ -366,19 +341,63 @@ typedef enum {
 
 
 /*
- * CyberGear can 包定义
+ * CyberGear CAN 包定义
  */
 typedef struct {
-  uint8_t can_id[4]; // CAN ID, 29位有效数据
-  uint8_t bytes[8]; // 数据区, 8字节
+    union {
+        uint32_t value;
+        uint8_t bytes[4];
+    } can_id; // CAN ID, 29位有效数据
+  
+    union {
+        uint64_t value;
+        uint8_t bytes[8];
+    } can_data; // 数据区, 8字节
 } CYBERGEARAPI cyber_gear_can_t;
+
+/*
+ * CyberGear 通信模式 1 发送控制指令
+ */
+typedef struct {
+    uint8_t motor_can_id; // 目标电机 CAN ID
+    float target_location; // 目标角度 (-4π~4π)
+    float target_speed; // 目标角速度 (-30rad/s~30rad/s)
+    float kp; // Kp (0.0~500.0)
+    float kd; // Kd (0.0~5.0)
+    float torque; // 力矩对应 (-12Nm~12Nm)
+} cyber_gear_motion_control_t;
+
+/*
+ * CyberGear 通信模式 2 电机反馈数据
+ */
+typedef enum {
+    MOTOR_MODE_RESET, // 复位模式
+    MOTOR_MODE_CALI, // 标定模式
+    MOTOR_MODE_MOTOR // 运行模式
+} cyber_gear_motor_mode_t;
+
+typedef struct {
+    uint8_t host_can_id; // 主机 CAN_ID
+    uint8_t motor_can_id; // 目标电机 CAN ID
+    float current_torque; // 力矩 [-12, 12] 单位 N/m
+    float current_location; // 目标角度 [-4pi, 4pi]
+    float current_speed; // 目标角速度 [-30rad/s, 30rad/s]
+    float current_temperature; // 当前温度:Temp(摄氏度) * 10
+    int has_calibration_error; // 标定错误
+    int has_hall_encode_error; // HALL 编码故障
+    int has_magnetic_encoding_error; // 磁编码错误
+    int has_over_temperature; // 过温故障
+    int has_over_current; // 过流故障
+    int has_undervoltage; // 欠压故障
+    cyber_gear_can_t mode_type; // 运行模式
+} cyber_gear_motor_status_t;
 
 
 /* 初始化一个 CyberGear 的 CAN 帧 */
-CYBERGEARAPI void cyber_gear_can_init(cyber_gear_can_t *frame);
+CYBERGEARAPI void cyber_gear_can_init(const cyber_gear_can_t *frame);
 
 /*  Dump 一个 CyberGear 的 CAN 帧 */
-CYBERGEARAPI void cyber_gear_can_dump(cyber_gear_can_t *frame);
+CYBERGEARAPI void cyber_gear_can_dump(const cyber_gear_can_t * const frame);
 
 /* 对 CAN ID 区域特定的比特位进行赋值整数
  * @param: frame 要设置的帧
@@ -386,38 +405,75 @@ CYBERGEARAPI void cyber_gear_can_dump(cyber_gear_can_t *frame);
  * @param: bit_length 比特长度
  * @param: value 设置值(整数)
  * */
-CYBERGEARAPI void cyber_gear_set_can_id_int_value(cyber_gear_can_t *frame, int bit_start, int bit_length, int value);
+CYBERGEARAPI void cyber_gear_set_can_id_int_value(const cyber_gear_can_t *frame, int bit_start, int bit_length, int value);
+
+/* 获取 CAN ID 区域特定的比特位数据
+ * @param: frame 要设置的帧
+ * @param: bit_start 比特开始位
+ * @param: bit_length 比特长度
+ * @return: int 值数据
+ * */
+CYBERGEARAPI int cyber_gear_get_can_id_int_value(const cyber_gear_can_t *frame, int bit_start, int bit_length);
 
 /* 对 CAN ID 设置通讯类型
  * @param: frame 要设置的帧
  * @param: type 通信类型
  * */
-CYBERGEARAPI void cyber_gear_set_can_id_communation_type(cyber_gear_can_t *frame, cyber_gear_can_communication_type_t type);
+CYBERGEARAPI void cyber_gear_set_can_id_communication_type(const cyber_gear_can_t *frame, cyber_gear_can_communication_type_t type);
 
 /* 对 CAN ID 设置主机CANID
  * @param: frame 要设置的帧
  * @param: value 主机CANID
  * */
-CYBERGEARAPI void cyber_gear_set_can_id_host_can_id(cyber_gear_can_t *frame, int value);
+CYBERGEARAPI void cyber_gear_set_can_id_host_can_id(const cyber_gear_can_t *frame, int value);
 
 /* 对 CAN ID 设置目标电机CANID
  * @param: frame 要设置的帧
  * @param: value 电机CANID
  * */
-CYBERGEARAPI void cyber_gear_set_can_id_target_can_id(cyber_gear_can_t *frame, int value);
+CYBERGEARAPI void cyber_gear_set_can_id_target_can_id(const cyber_gear_can_t *frame, int value);
 
 
-/* 构造一个参数写入的CAN包, 参数值为整数
+/* 构造一个参数写入的CAN包 (通信类型18), 参数值为整数
  * @param: frame 要设置的帧
  * @param: index 参数index
  * @param: value 参数值
  * */
-CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_int_value(cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, int value);
+CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_int_value(const cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, int value);
 
 
-/* 构造一个参数写入的CAN包, 参数值为浮点
+/* 构造一个参数写入的CAN包 (通信类型18), 参数值为浮点
  * @param: frame 要设置的帧
  * @param: index 参数index
  * @param: value 参数值
  * */
-CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_float_value(cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, float value);
+CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_float_value(const cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, float value);
+
+
+/* 获取帧的通信类型
+ * @param: frame 解析的帧
+ * @return: cyber_gear_can_communication_type_t 通信类型
+ * */
+CYBERGEARAPI cyber_gear_can_communication_type_t cyber_gear_get_can_id_communication_type(const cyber_gear_can_t * const frame);
+
+/* 获取帧的目标CAN_ID
+ * @param: frame 要设置的帧
+ * @return: int 目标 CAN_ID
+ * */
+CYBERGEARAPI int cyber_gear_get_can_id_target_id(const cyber_gear_can_t * const frame);
+
+/* 运控模式电机控制指令 (通信类型 1)用来向电机发送控制指令
+ * @param: control_param 控制参数
+ * */
+CYBERGEARAPI void cyber_gear_build_motion_control_frame(const cyber_gear_can_t *frame, const cyber_gear_motion_control_t control_param);
+
+/* 解析通信类型2 电机运行状态帧
+ * @param: frame 要解析的帧
+ * @return: cyber_gear_can_communication_type_t 通信类型
+ * */
+CYBERGEARAPI cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_can_t * const frame);
+
+/*  Dump 一个 CyberGear 的 电机运行状态帧 帧 */
+CYBERGEARAPI void cyber_gear_dump_motor_status_frame(const cyber_gear_motor_status_t status);
+
+
