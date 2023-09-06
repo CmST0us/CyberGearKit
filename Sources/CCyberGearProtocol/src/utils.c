@@ -10,19 +10,24 @@
 #include <assert.h>
 #include <sys/param.h>
 
+#define BSWAP_8(x) ((x) & 0xff)
+#define BSWAP_16(x) ((BSWAP_8(x) << 8) | BSWAP_8((x) >> 8))
+#define BSWAP_32(x) ((BSWAP_16(x) << 16) | BSWAP_16((x) >> 16))
+#define BSWAP_64(x) ((BSWAP_32(x) << 32) | BSWAP_32((x) >> 32))
+
 uint16_t bswap16(uint16_t v)
 {
-    return _OSSwapInt16(v);
+    return BSWAP_16(v);
 }
 
 uint32_t bswap32(uint32_t v)
 {
-    return _OSSwapInt32(v);
+    return BSWAP_32(v);
 }
 
 uint64_t bswap64(uint64_t v)
 {
-    return _OSSwapInt64(v);
+    return BSWAP_64(v);
 }
 
 bool is_little_endian(void)

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <sys/types.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 typedef union {

@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <sys/types.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "visibility.h"
 
 typedef enum {
