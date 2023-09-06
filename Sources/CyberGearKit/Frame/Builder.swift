@@ -84,7 +84,18 @@ extension CyberGear.Frame.Builder {
     }
 
     private static func buildDisableDeviceFrame(builder: CyberGear.Frame.Builder) -> CAN.Frame? {
-        return nil
+        var cyberGearFrame = cyber_gear_can_t()
+        cyber_gear_can_init(&cyberGearFrame)
+
+        guard let motorID = builder.motorID,
+              let hostID = builder.hostID else {
+            return nil
+        }
+        cyber_gear_set_can_id_target_can_id(&cyberGearFrame, Int32(motorID))
+        cyber_gear_set_can_id_host_can_id(&cyberGearFrame, Int32(hostID))
+
+        cyber_gear_set_can_id_communication_type(&cyberGearFrame, CyberGear.Frame.CommunicationType.disableDevice.c_enum)
+        return CAN.Frame(id: cyberGearFrame.can_id.value, unpadded: CyberGear.Utils.tuple8ToArray(cyberGearFrame.can_data.bytes))
     }
 
     private static func buildSetMechanicalZeroPositionFrame(builder: CyberGear.Frame.Builder) -> CAN.Frame? {

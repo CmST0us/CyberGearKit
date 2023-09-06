@@ -7,7 +7,7 @@ import Swift_SocketCAN
 
 extension CyberGear {
     public final class CANBus {
-        private let hostID: Int
+        let hostID: Int
 
         private let socketCAN: SocketCAN
 
