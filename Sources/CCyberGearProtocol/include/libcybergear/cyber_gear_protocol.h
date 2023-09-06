@@ -392,6 +392,20 @@ typedef struct {
     cyber_gear_can_t mode_type; // 运行模式
 } cyber_gear_motor_status_t;
 
+/*
+ * CyberGear 通信模式 17 单个参数读取
+ */
+typedef struct {
+    uint8_t host_can_id; // 主机 CAN_ID
+    uint8_t motor_can_id; // 目标电机 CAN ID
+    
+    cyber_gear_read_write_parameter_index_t index; // 参数索引
+    
+    union {
+        uint32_t value;
+        uint8_t bytes[4];
+    } data; // 参数的数值
+} cyber_gear_single_parameter_t;
 
 /* 初始化一个 CyberGear 的 CAN 帧 */
 CYBERGEARAPI void cyber_gear_can_init(const cyber_gear_can_t *frame);
@@ -449,6 +463,15 @@ CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_int_value(const cy
  * */
 CYBERGEARAPI void cyber_gear_build_parameter_write_frame_with_float_value(const cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index, float value);
 
+/* 构造一个参数读取的CAN包 （通信类型17）
+ * @param: frame 要设置的帧
+ */
+CYBERGEARAPI void cyber_gear_build_parameter_read_frame(const cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index);
+
+/* 解析一个参数读取的CAN包 （通信类型17）
+ * @param: frame 要设置的帧
+ */
+CYBERGEARAPI cyber_gear_single_parameter_t cyber_gear_parse_parameter_read_frame(const cyber_gear_can_t *frame);
 
 /* 获取帧的通信类型
  * @param: frame 解析的帧
@@ -461,6 +484,12 @@ CYBERGEARAPI cyber_gear_can_communication_type_t cyber_gear_get_can_id_communica
  * @return: int 目标 CAN_ID
  * */
 CYBERGEARAPI int cyber_gear_get_can_id_target_id(const cyber_gear_can_t * const frame);
+
+/* 获取帧的主机CAN_ID
+ * @param: frame 要设置的帧
+ * @return: int 主机 CAN_ID
+ * */
+CYBERGEARAPI int cyber_gear_get_can_id_host_id(const cyber_gear_can_t * const frame);
 
 /* 运控模式电机控制指令 (通信类型 1)用来向电机发送控制指令
  * @param: control_param 控制参数

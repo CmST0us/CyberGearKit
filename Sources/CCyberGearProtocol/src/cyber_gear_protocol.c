@@ -177,6 +177,52 @@ void cyber_gear_build_parameter_write_frame_with_float_value(const cyber_gear_ca
                         sizeof(frame->can_data.bytes));
 }
 
+void cyber_gear_build_parameter_read_frame(const cyber_gear_can_t *frame, cyber_gear_read_write_parameter_index_t index) {
+    cyber_gear_set_can_id_communication_type(frame, COMMUNICATION_READ_SINGLE_PARAM);
+    
+    bit_value_t setting_value = {0};
+    setting_value.value = bit_utils_swap_host_endian_value_into_little_endian16(index);
+    
+    bit_utils_set_value(setting_value,
+                        0 * CHAR_BIT, 2 * CHAR_BIT,
+                        (uint8_t *)frame->can_data.bytes,
+                        sizeof(frame->can_data.bytes));
+}
+
+cyber_gear_single_parameter_t cyber_gear_parse_parameter_read_frame(const cyber_gear_can_t *frame) {
+    cyber_gear_can_communication_type_t comm_type = cyber_gear_get_can_id_communication_type(frame);
+    assert(comm_type == COMMUNICATION_READ_SINGLE_PARAM);
+    
+    int host_id = cyber_gear_get_can_id_host_id(frame);
+    int target_id = cyber_gear_get_can_id_target_id(frame);
+    
+    bit_value_t source = {0};
+    memcpy(source.bytes, frame->can_data.bytes, sizeof(frame->can_data.bytes));
+    
+    bit_value_t index_raw = bit_utils_get_value(source,
+                                                sizeof(frame->can_data.bytes),
+                                                0 * CHAR_BIT, 2 * CHAR_BIT);
+    
+    int index = bit_utils_swap_little_endian_value_into_host_endian16(index_raw.value);
+    
+    cyber_gear_read_write_parameter_index_t param_index = index;
+    
+    bit_value_t param_raw = bit_utils_get_value(source,
+                                                sizeof(frame->can_data.bytes),
+                                                4 * CHAR_BIT, 4 * CHAR_BIT);
+    
+    bit32_value_t param_raw_32 = {0};
+    param_raw_32.value = bit_utils_swap_little_endian_value_into_host_endian32((uint32_t)param_raw.value);
+    
+    cyber_gear_single_parameter_t result = {0};
+    result.index = param_index;
+    result.motor_can_id = target_id;
+    result.host_can_id = host_id;
+    result.data.value = param_raw_32.value;
+    
+    return result;
+}
+
 cyber_gear_can_communication_type_t cyber_gear_get_can_id_communication_type(const cyber_gear_can_t * const frame) {
     return (cyber_gear_can_communication_type_t)cyber_gear_get_can_id_int_value(frame, 24, 5);
 }
@@ -185,12 +231,13 @@ int cyber_gear_get_can_id_target_id(const cyber_gear_can_t * const frame) {
     return cyber_gear_get_can_id_int_value(frame, 0, 8);
 }
 
+int cyber_gear_get_can_id_host_id(const cyber_gear_can_t * const frame) {
+    return cyber_gear_get_can_id_int_value(frame, 8, 8);
+}
+
 cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_can_t * const frame) {
     cyber_gear_can_communication_type_t comm_type = cyber_gear_get_can_id_communication_type(frame);
     assert(comm_type == COMMUNICATION_STATUS_REPORT);
-    
-    uint64_memory_t v;
-    memcpy(v.bytes, frame->can_data.bytes, 8);
     
     bit_value_t source = {0};
     memcpy(source.bytes, frame->can_data.bytes, sizeof(frame->can_data.bytes));

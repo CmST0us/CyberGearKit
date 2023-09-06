@@ -150,15 +150,6 @@ bool bit_utils_set_value(const bit_value_t value,
     uint64_t mask = bitmask(bit_count) << offset;
     
     uint64_t value_after_mask = value_after_offset & mask;
-    
-    // 1100 0010 1100 0011 1100 1101 1011 origin
-    // 0000 0000 0000 0000 0011 1100 0000 mask
-    // 1111 1111 1111 1111 1100 0011 1111 ~mask
-    // 1100 0010 1100 0011 1100 0001 1011 origin & ~mask 清除写入位置比特信息
-    
-    // 0000 0000 0000 0000 0011 0100 0000 value
-    
-    // 1100 0010 1100 0011 1111 0100 0011 result
     result.value = (result.value & ~mask) | value_after_mask;
     memcpy(destination, result.bytes, destinatin_length);
     return true;
