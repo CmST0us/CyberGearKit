@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CyberGearUtils",
     dependencies: [
-        .package(url: "https://github.com/AutomotiveSwift/Swift-SocketCAN.git", from: "0.9.0")
+        .package(url: "https://github.com/AutomotiveSwift/Swift-SocketCAN.git", branch: "master")
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
     ],
