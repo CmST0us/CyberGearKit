@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "swift-socketcan",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AutomotiveSwift/Swift-SocketCAN.git",
+      "state" : {
+        "revision" : "6c55b4f6c310b53505c4744fead179b4460ee83f",
+        "version" : "0.9.0"
+      }
+    }
+  ],
+  "version" : 2
+}
