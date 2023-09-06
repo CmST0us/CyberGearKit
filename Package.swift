@@ -4,11 +4,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "CyberGearUtils",
+    name: "CyberGearKit",
+    products: [
+        .library(name: "CyberGearKit", targets: [
+            "CyberGearKit"
+        ])
+    ],
     dependencies: [
         .package(url: "https://github.com/AutomotiveSwift/Swift-SocketCAN.git", branch: "master")
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
     ],
     targets: [
         .target(name: "CCyberGearProtocol",
