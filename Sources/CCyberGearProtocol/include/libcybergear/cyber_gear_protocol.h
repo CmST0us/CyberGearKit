@@ -381,8 +381,8 @@ typedef struct {
     uint8_t host_can_id; // 主机 CAN_ID
     uint8_t motor_can_id; // 目标电机 CAN ID
     float current_torque; // 力矩 [-12, 12] 单位 N/m
-    float current_location; // 目标角度 [-4pi, 4pi]
-    float current_speed; // 目标角速度 [-30rad/s, 30rad/s]
+    float current_location; // 当前角度 [-4pi, 4pi]
+    float current_speed; // 当前角速度 [-30rad/s, 30rad/s]
     float current_temperature; // 当前温度:Temp(摄氏度) * 10
     int has_calibration_error; // 标定错误
     int has_hall_encode_error; // HALL 编码故障
@@ -390,7 +390,7 @@ typedef struct {
     int has_over_temperature; // 过温故障
     int has_over_current; // 过流故障
     int has_undervoltage; // 欠压故障
-    cyber_gear_can_t mode_type; // 运行模式
+    cyber_gear_motor_mode_t mode_type; // 运行模式
 } cyber_gear_motor_status_t;
 
 /*
@@ -502,6 +502,19 @@ CYBERGEARAPI void cyber_gear_build_motion_control_frame(const cyber_gear_can_t *
  * @return: cyber_gear_can_communication_type_t 通信类型
  * */
 CYBERGEARAPI cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_can_t * const frame);
+
+/* 解析通信类型6 构建一个 位置机械零位帧
+ * @param: frame 要解析的帧
+ * @return: cyber_gear_can_communication_type_t 通信类型
+ * */
+CYBERGEARAPI void cyber_gear_build_set_mechanical_zero_position_frame(const cyber_gear_can_t * frame);
+
+
+/* 解析通信类型7 构建一个 设置 CAN ID 帧
+ * @param: frame 要解析的帧
+ * @return: cyber_gear_can_communication_type_t 通信类型
+ * */
+CYBERGEARAPI void cyber_gear_build_set_can_id_frame(const cyber_gear_can_t * frame, int setting_can_id);
 
 /*  Dump 一个 CyberGear 的 电机运行状态帧 帧 */
 CYBERGEARAPI void cyber_gear_dump_motor_status_frame(const cyber_gear_motor_status_t status);

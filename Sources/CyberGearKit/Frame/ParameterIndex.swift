@@ -27,7 +27,7 @@ extension CyberGear.Frame {
         /// 参数类型 float
         /// 参数字节数 4
         /// 参数说明 0~12Nm
-        case imitTorque = 0x700B
+        case limitTorque = 0x700B
         /// 电流的 Kp
         /// 参数类型 float
         /// 参数字节数 4

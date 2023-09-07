@@ -4,6 +4,8 @@
 
 import Foundation
 import CCyberGearProtocol
+import RxRelay
+import RxSwift
 
 extension CyberGear {
     public final class Motor {
@@ -15,12 +17,52 @@ extension CyberGear {
         }
 
         public let canID: Int
+
+        public var motorStaus: BehaviorRelay<CyberGear.Frame.MotorStatus> = BehaviorRelay(value: .empty)
+
+        private var parameterCache: [CyberGear.Frame.ParameterIndex: CyberGear.Frame.ParameterRead] = [:]
+
+        private var cacheLock: NSLock = NSLock()
+
+        public var onParameterUpdate: PublishRelay<CyberGear.Frame.ParameterRead> = PublishRelay()
+
         private let canBus: CANBus
+
+        private var readFrameDisposeBag: DisposeBag = DisposeBag()
+
+        private let parser: CyberGear.Frame.Parser
 
         public init(canID: Int, bus: CANBus) {
             self.canID = canID
             self.canBus = bus
+            self.parser = CyberGear.Frame.Parser(hostID: bus.hostID, targetID: canID)
+
+            attachCANBus(bus)
         }
+    }
+}
+
+extension CyberGear.Motor {
+    private func attachCANBus(_ bus: CyberGear.CANBus) {
+        readFrameDisposeBag = DisposeBag()
+
+        parser.attachFeeder(bus.onCANFrameRead)
+
+        parser.onMotorStatusPublish.bind(to: motorStaus)
+                .disposed(by: readFrameDisposeBag)
+
+        parser.onMotorParameterReadPublish.bind(to: onParameterUpdate)
+                .disposed(by: readFrameDisposeBag)
+
+        onParameterUpdate.subscribe { [weak self] (v: CyberGear.Frame.ParameterRead) in
+            guard let self else {
+                return
+            }
+            self.cacheLock.lock()
+            self.parameterCache[v.index] = v
+            self.cacheLock.unlock()
+        }.disposed(by: readFrameDisposeBag)
+
     }
 }
 
@@ -105,4 +147,8 @@ extension CyberGear.Motor {
         }
     }
 
+    public func parameter<Value>(_ index: CyberGear.Frame.ParameterIndex) -> Value? {
+        // TODO
+        return nil
+    }
 }

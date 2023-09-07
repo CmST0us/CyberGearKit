@@ -249,7 +249,7 @@ cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_c
     bit16_value_t location_raw_16_bit = {
         .value = location_raw.value
     };
-    float location = map((int16_t)bit_utils_swap_little_endian_value_into_host_endian16(location_raw_16_bit.value), -32768.0, 32767.0, -4 * kM_PI, 4 * kM_PI);
+    float location = map((int16_t)bit_utils_swap_big_endian_value_into_host_endian16(location_raw_16_bit.value), -32768.0, 32767.0, -4 * kM_PI, 4 * kM_PI);
     
     bit_value_t speed_raw = bit_utils_get_value(source,
                                                 sizeof(frame->can_data.bytes),
@@ -258,7 +258,7 @@ cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_c
     bit16_value_t speed_raw_16_bit = {
         .value = speed_raw.value
     };
-    float speed = map((int16_t)bit_utils_swap_little_endian_value_into_host_endian16(speed_raw_16_bit.value), -32768.0, 32767.0, -30, 30);
+    float speed = map((int16_t)bit_utils_swap_big_endian_value_into_host_endian16(speed_raw_16_bit.value), -32768.0, 32767.0, -30, 30);
     
     bit_value_t torque_raw = bit_utils_get_value(source,
                                                  sizeof(frame->can_data.bytes),
@@ -267,7 +267,7 @@ cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_c
     bit16_value_t torque_raw_16_bit = {
         .value = torque_raw.value
     };
-    float torque = map((int16_t)bit_utils_swap_little_endian_value_into_host_endian16(torque_raw_16_bit.value), -32768.0, 32767.0, -12, 12);
+    float torque = map((int16_t)bit_utils_swap_big_endian_value_into_host_endian16(torque_raw_16_bit.value), -32768.0, 32767.0, -12, 12);
     
     bit_value_t temperature_raw = bit_utils_get_value(source,
                                                       sizeof(frame->can_data.bytes),
@@ -295,6 +295,25 @@ cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_c
     };
     
     return motor_status;
+}
+
+void cyber_gear_build_set_mechanical_zero_position_frame(const cyber_gear_can_t * frame) {
+    cyber_gear_set_can_id_communication_type(frame, COMMUNICATION_SET_MECHANICAL_ZERO_POSITION);
+
+    uint8_t *bytes = (uint8_t *)frame->can_data.bytes;
+    bytes[0] = 1;
+}
+
+void cyber_gear_build_set_can_id_frame(const cyber_gear_can_t * frame, int setting_can_id) {
+    cyber_gear_set_can_id_communication_type(frame, COMMUNICATION_SET_CAN_ID);
+
+    bit_value_t setting_value = {0};
+    setting_value.value = bit_utils_swap_host_endian_value_into_little_endian16(setting_can_id);
+
+    bit_utils_set_value(setting_value,
+                        16, 8,
+                        (uint8_t *)frame->can_id.bytes,
+                        sizeof(frame->can_id.bytes));
 }
 
 void cyber_gear_dump_motor_status_frame(const cyber_gear_motor_status_t status) {
