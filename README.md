@@ -33,7 +33,19 @@ Create `CyberGear.Motor` to control motor. For example, you can make motor run i
 let motor = CyberGear.Motor(canID: 127, bus: canBus)
 try! motor.runMode(.speed)
 try! motor.enable()
-try! motor.setTargetSpeed(v)
+try! motor.setTargetSpeed(5)
+```
+
+Use `RxSwift` to listen frame parse
+
+```swift
+let disposeBag = DisposeBag()
+motor.motorStaus
+    .observe(on: MainScheduler.asyncInstance)
+    .subscribe { (v: CyberGearKit.CyberGear.Frame.MotorStatus) in
+        // do some thing
+    }
+    .disposed(by: disposeBag)
 ```
 
 # License and Contributions
