@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "appbootstrapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CmST0us/AppBootstrapKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "34e0d3618936e6d657ebdae919947988d770eb47"
+      }
+    },
+    {
       "identity" : "rxswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",
@@ -25,6 +34,15 @@
       "state" : {
         "branch" : "master",
         "revision" : "6458b7ac0a57f488d658594e672b775fb7e20248"
+      }
+    },
+    {
+      "identity" : "swiftimgui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ctreffs/SwiftImGui.git",
+      "state" : {
+        "branch" : "1.89.5",
+        "revision" : "c81197496f9227001fd5531673604a6f29f880b1"
       }
     }
   ],

@@ -12,7 +12,9 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/AutomotiveSwift/Swift-SocketCAN.git", branch: "master"),
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", branch: "6.6.0")
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", branch: "6.6.0"),
+        .package(url: "https://github.com/ctreffs/SwiftImGui.git", branch: "1.89.5"),
+        .package(url: "https://github.com/CmST0us/AppBootstrapKit.git", branch: "main")
     ],
     targets: [
         .target(name: "CCyberGearProtocol",
@@ -27,7 +29,9 @@ let package = Package(
         .executableTarget(
             name: "CyberGearUtils",
             dependencies: [
-                .target(name: "CyberGearKit")
+                .target(name: "CyberGearKit"),
+                .product(name: "ImGui", package: "SwiftImGui"),
+                .product(name: "AppBootstrapKit", package: "AppBootstrapKit")
             ]),
         .testTarget(
             name: "CyberGearUtilsTests",
