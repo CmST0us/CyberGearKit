@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <limits.h>
+#include <stdlib.h>
 
 #include <libcybergear/cyber_gear_protocol.h>
 #include "utils.h"
@@ -235,6 +236,15 @@ int cyber_gear_get_can_id_host_id(const cyber_gear_can_t * const frame) {
     return cyber_gear_get_can_id_int_value(frame, 8, 8);
 }
 
+static int16_t rebound_value(int16_t input, int max) {
+    if (input == 0) {
+        return 0;
+    }
+    int16_t abs_value = abs(input);
+    int sign_value= abs_value / input;
+    return (abs_value - max) * sign_value;
+}
+
 cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_can_t * const frame) {
     cyber_gear_can_communication_type_t comm_type = cyber_gear_get_can_id_communication_type(frame);
     assert(comm_type == COMMUNICATION_STATUS_REPORT);
@@ -249,7 +259,8 @@ cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_c
     bit16_value_t location_raw_16_bit = {
         .value = location_raw.value
     };
-    float location = map((int16_t)bit_utils_swap_big_endian_value_into_host_endian16(location_raw_16_bit.value), -32768.0, 32767.0, -4 * kM_PI, 4 * kM_PI);
+    int16_t location_value = (int16_t)bit_utils_swap_big_endian_value_into_host_endian16(location_raw_16_bit.value);
+    float location = map((int16_t)rebound_value(location_value, 32768), -32768.0, 32767.0, -4 * kM_PI, 4 * kM_PI);
     
     bit_value_t speed_raw = bit_utils_get_value(source,
                                                 sizeof(frame->can_data.bytes),
@@ -258,7 +269,8 @@ cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_c
     bit16_value_t speed_raw_16_bit = {
         .value = speed_raw.value
     };
-    float speed = map((int16_t)bit_utils_swap_big_endian_value_into_host_endian16(speed_raw_16_bit.value), -32768.0, 32767.0, -30, 30);
+    int16_t speed_value = (int16_t)bit_utils_swap_big_endian_value_into_host_endian16(speed_raw_16_bit.value);
+    float speed = map((int16_t)rebound_value(speed_value, 32768), -32768.0, 32767.0, -30, 30);
     
     bit_value_t torque_raw = bit_utils_get_value(source,
                                                  sizeof(frame->can_data.bytes),
@@ -267,7 +279,8 @@ cyber_gear_motor_status_t cyber_gear_parse_motor_status_frame(const cyber_gear_c
     bit16_value_t torque_raw_16_bit = {
         .value = torque_raw.value
     };
-    float torque = map((int16_t)bit_utils_swap_big_endian_value_into_host_endian16(torque_raw_16_bit.value), -32768.0, 32767.0, -12, 12);
+    int16_t torque_value = (int16_t)bit_utils_swap_big_endian_value_into_host_endian16(torque_raw_16_bit.value);
+    float torque = map((int16_t)rebound_value(torque_value, 32768), -32768.0, 32767.0, -12, 12);
     
     bit_value_t temperature_raw = bit_utils_get_value(source,
                                                       sizeof(frame->can_data.bytes),
