@@ -10,6 +10,7 @@ import RxSwift
 extension CyberGear {
     public final class Motor {
         public enum RunMode: Int {
+            case unknown = -1
             case motionControl = 0
             case location = 1
             case speed = 2
@@ -18,7 +19,7 @@ extension CyberGear {
 
         public let canID: Int
 
-        public var motorStaus: BehaviorRelay<CyberGear.Frame.MotorStatus> = BehaviorRelay(value: .empty)
+        public let motorStaus: BehaviorRelay<CyberGear.Frame.MotorStatus> = BehaviorRelay(value: .empty)
 
         private var parameterCache: [CyberGear.Frame.ParameterIndex: CyberGear.Frame.ParameterRead] = [:]
 
@@ -31,6 +32,8 @@ extension CyberGear {
         private var readFrameDisposeBag: DisposeBag = DisposeBag()
 
         private let parser: CyberGear.Frame.Parser
+
+        public let currentRunMode: BehaviorRelay<RunMode> = BehaviorRelay(value: .unknown)
 
         public init(canID: Int, bus: CANBus) {
             self.canID = canID
@@ -87,7 +90,19 @@ extension CyberGear.Motor {
         }
     }
 
+    public func setZeroPosition() throws {
+        if let frame = CyberGear.Frame.Builder()
+                .hostID(canBus.hostID)
+                .motorID(canID)
+                .communitaionType(.setMechanicalZeroPosition)
+                .build() {
+            try canBus.write(frame)
+        }
+    }
+
+
     public func runMode(_ runMode: RunMode) throws {
+        self.currentRunMode.accept(runMode)
         if let frame = CyberGear.Frame.Builder()
                 .hostID(canBus.hostID)
                 .motorID(canID)
