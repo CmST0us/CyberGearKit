@@ -74,17 +74,11 @@ extension CyberGear.Frame {
             .disposed(by: disposeBag)
 
             readedCyberGearFrame.filter { frame in
-                // 参数读取帧的应答不太一样 0,7 位是电机ID
-                return frame.targetID == self.targetID &&
-                        frame.hostID == self.hostID &&
+                return frame.targetID == self.hostID &&
+                        frame.hostID == self.targetID &&
                         frame.communicationType == .readSingleParam
             }.map {
                 CyberGear.Frame.Parser.parse($0)
-            }.filter {  [weak self] in
-                guard let self else {
-                    return false
-                }
-                return $0.motorCANID == self.targetID
             }.bind(to: _onMotorParameterReadPublish)
             .disposed(by: disposeBag)
         }

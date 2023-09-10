@@ -162,8 +162,32 @@ extension CyberGear.Motor {
         }
     }
 
-    public func parameter<Value>(_ index: CyberGear.Frame.ParameterIndex) -> Value? {
-        // TODO
-        return nil
+    public func updateParameterCache(_ index: CyberGear.Frame.ParameterIndex) throws {
+        if let frame = CyberGear.Frame.Builder()
+                .hostID(canBus.hostID)
+                .motorID(canID)
+                .communitaionType(.readSingleParam)
+                .parameterIndex(index)
+                .build() {
+            try canBus.write(frame)
+        }
+    }
+
+    public func parameter(_ index: CyberGear.Frame.ParameterIndex) -> Float? {
+        cacheLock.lock()
+        defer {
+            cacheLock.unlock()
+        }
+
+        return parameterCache[index]?.floatValue
+    }
+
+    public func parameter(_ index: CyberGear.Frame.ParameterIndex) -> Int? {
+        cacheLock.lock()
+        defer {
+            cacheLock.unlock()
+        }
+
+        return parameterCache[index]?.intValue
     }
 }
